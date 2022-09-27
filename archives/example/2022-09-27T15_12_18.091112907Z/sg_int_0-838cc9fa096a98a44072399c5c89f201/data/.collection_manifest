@@ -1,0 +1,1 @@
+{"uid":"2","scopes":[{"uid":"8","name":"sg_test_1","collections":[{"uid":"8","name":"sg_test_1","maxTTL":0}]},{"uid":"0","name":"_default","collections":[{"uid":"0","name":"_default","maxTTL":0}]}],"scope_tombstones":[],"collection_tombstones":[]}

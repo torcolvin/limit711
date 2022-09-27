@@ -1,0 +1,1 @@
+{"version":1,"source":{"high_seqno":4,"failover_log":[{"seqno":0,"uuid":265191346638863}]},"sink":{"initial":{},"current":{"snapshots":[{"start":0,"end":4}],"failover_log":[{"seqno":0,"uuid":265191346638863}]}}}
