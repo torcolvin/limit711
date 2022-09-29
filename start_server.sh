@@ -1,14 +1,17 @@
 #!/bin/bash
-
 set -eux
 
-DOCKER_IMAGE=couchbase/server:enterprise-7.1.1
+DOCKER_IMAGE=${1:-couchbase/server:enterprise-7.1.0}
 
 # kill couchbase if it exists
 docker kill couchbase || true
-docker volume rm couchbase || true
 
-docker run --rm -d --name couchbase -p 8091-8096:8091-8096 -p 11207:11207 -p 11210:11210 -p 11211:11211 -p 18091-18094:18091-18094 --volume 'type=volume,src=couchbase_data,/var/couchbase/var' $DOCKER_IMAGE
+COUCHBASE_DATA_DIR=${PWD}/cbs
+sudo rm -rf ${COUCHBASE_DATA_DIR}
+tar xf cbs-data.tar.bz2
+mkdir -p ${COUCHBASE_DATA_DIR}
+
+docker run --rm -d --name couchbase -p 8091-8096:8091-8096 -p 11207:11207 -p 11210:11210 -p 11211:11211 -p 18091-18094:18091-18094 --mount "type=bind,src=${COUCHBASE_DATA_DIR},target=/opt/couchbase/var" $DOCKER_IMAGE
 
 # Test to see if Couchbase Server is up
 # Each retry min wait 5s, max 10s. Retry 20 times with exponential backoff (delay 0), fail at 120s
@@ -23,8 +26,3 @@ curl -u Administrator:password -v -X POST http://localhost:8091/settings/indexes
     -d storageMode=plasma -d memorySnapshotInterval=150 -d stableSnapshotInterval=40000
 
 echo ""
-
-docker cp archives couchbase:/archives
-
-docker exec couchbase cbbackupmgr restore --archive /archives --repo example --cluster couchbase://127.0.0.1 --username Administrator --password password --auto-create-buckets
-

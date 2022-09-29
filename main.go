@@ -58,8 +58,15 @@ func query(cluster *gocb.Cluster) {
 		}
 		users = append(users, queryRow.Id)
 	}
-	fmt.Printf("users=%s\n", users)
-
+	err = results.Close()
+	if err != nil {
+		log.Fatalf("Could not close query: %s", err)
+	}
+	if len(users) == 5 {
+		log.Printf("Got expected users= %+v", users)
+	} else {
+		log.Fatalf("ERROR got not enough users=%+v\n", users)
+	}
 }
 
 func getCluster() *gocb.Cluster {
