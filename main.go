@@ -9,17 +9,19 @@ import (
 )
 
 const (
+	withLimit = "LIMIT 5" // turn to empty string to avoid error
+	//withLimit   = "" // turn to empty string to avoid error
 	cbsUserName = "Administrator"
 	cbsPassword = "password"
 	cbsAddr     = "localhost"
 	bucketName  = "sg_int_0"
-	idxName     = "sg_syncDocs_1"
+	//idxName     = "sg_syncDocs_1"
 )
 
 func main() {
 	log.Print("Start test program")
 	cluster := getCluster()
-	buildIndexes(cluster)
+	//buildIndexes(cluster)
 	query(cluster)
 
 	log.Print("SUCCESS")
@@ -31,7 +33,7 @@ type QueryIdRow struct {
 
 func query(cluster *gocb.Cluster) {
 	keyspace := fmt.Sprintf("`%s`.`_default`.`_default`", bucketName)
-	statement := fmt.Sprintf("SELECT META(sgQueryKeyspaceAlias).id FROM %s AS sgQueryKeyspaceAlias USE INDEX(sg_syncDocs_1) WHERE META(sgQueryKeyspaceAlias).id LIKE '\\\\_sync:%%' AND (META(sgQueryKeyspaceAlias).id LIKE '\\\\_sync:user:%%' OR META(sgQueryKeyspaceAlias).id LIKE '\\\\_sync:role:%%') AND META(sgQueryKeyspaceAlias).id >= $startkey ORDER BY META(sgQueryKeyspaceAlias).id LIMIT 5", keyspace)
+	statement := fmt.Sprintf("SELECT META(sgQueryKeyspaceAlias).id FROM %s AS sgQueryKeyspaceAlias USE INDEX(sg_syncDocs_1) WHERE META(sgQueryKeyspaceAlias).id LIKE '\\\\_sync:%%' AND (META(sgQueryKeyspaceAlias).id LIKE '\\\\_sync:user:%%' OR META(sgQueryKeyspaceAlias).id LIKE '\\\\_sync:role:%%') AND META(sgQueryKeyspaceAlias).id >= $startkey ORDER BY META(sgQueryKeyspaceAlias).id %s", keyspace, withLimit)
 
 	fmt.Printf("%q\n", statement)
 	results, err := cluster.Query(statement, &gocb.QueryOptions{
@@ -43,7 +45,6 @@ func query(cluster *gocb.Cluster) {
 	if err != nil {
 		log.Fatalf("Query returned error: %s", err)
 	}
-	fmt.Printf("results=%T\n", results)
 	var users []string
 	for {
 		found := results.Next()
@@ -99,6 +100,7 @@ func getCluster() *gocb.Cluster {
 	return cluster
 }
 
+/*
 func buildIndexes(cluster *gocb.Cluster) {
 	existingIdxs, err := cluster.QueryIndexes().GetAllIndexes(bucketName, nil)
 	if err != nil {
@@ -144,3 +146,4 @@ func buildIndexes(cluster *gocb.Cluster) {
 	}
 
 }
+*/
