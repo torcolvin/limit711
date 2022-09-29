@@ -6,6 +6,8 @@ DOCKER_IMAGE=${1:-couchbase/server:enterprise-7.1.0}
 # kill couchbase if it exists
 docker kill couchbase || true
 
+echo "Starting couchbase server"
+
 COUCHBASE_DATA_DIR=${PWD}/cbs
 sudo rm -rf ${COUCHBASE_DATA_DIR}
 tar xf cbs-data.tar.bz2
@@ -25,4 +27,4 @@ curl -u Administrator:password http://127.0.0.1:8091/settings/web -d 'password=p
 curl -u Administrator:password http://localhost:8091/settings/indexes -d indexerThreads=4 -d logLevel=verbose -d maxRollbackPoints=10 \
     -d storageMode=plasma -d memorySnapshotInterval=150 -d stableSnapshotInterval=40000
 
-echo ""
+echo "Finished starting couchbase server"
